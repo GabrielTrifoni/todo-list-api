@@ -2,6 +2,12 @@ import { Expose } from "class-transformer";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
 
+export enum TaskStatusEnum {
+    Todo = 1,
+    InProgress,
+    Complete
+}
+
 @Entity()
 export class Task {
     @PrimaryGeneratedColumn()
@@ -14,13 +20,13 @@ export class Task {
 
     @Column()
     @Expose()
-    status: string;
+    status: TaskStatusEnum;
 
     @Column()
     @Expose()
-    isPriority: string;
+    isPriority: boolean;
 
     @ManyToOne(() => User, (user) => user.tasks)
     @Expose()
-    userId: User;
+    userId: number;
 }
