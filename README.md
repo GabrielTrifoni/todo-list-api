@@ -25,6 +25,7 @@
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Idea from https://roadmap.sh/projects/todo-list-api
 
 ## Project setup
 
