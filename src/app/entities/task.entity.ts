@@ -28,5 +28,5 @@ export class Task {
 
     @ManyToOne(() => User, (user) => user.tasks)
     @Expose()
-    userId: number;
+    user: User;
 }

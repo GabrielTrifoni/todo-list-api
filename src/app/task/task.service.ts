@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task, TaskStatusEnum } from '../entities/task.entity';
 import { Repository } from 'typeorm';
@@ -17,15 +17,22 @@ export class TaskService {
         const task = new Task();
 
         task.name = input.name;
-        task.status = TaskStatusEnum.Todo,
-            task.isPriority = false;
-        task.userId = user.id;
+        task.status = TaskStatusEnum.Todo;
+        task.isPriority = false;
+        task.user = user;
 
         return await this.taskRepository.save(task);
     }
 
-    async update(taskId: number, input: UpdateTaskDto) {
-        const task = await this.taskRepository.findOneBy({ id: taskId });
+    async update(taskId: number, input: UpdateTaskDto, user: User) {
+        const task = await this.taskRepository.findOne({
+            where: { id: taskId },
+            relations: ['user'],
+        });
+
+        if (user.id !== task.user.id) {
+            throw new UnauthorizedException("Unauthorized Exception");
+        }
 
         if (!task) {
             throw new NotFoundException('Task not found');
@@ -42,5 +49,18 @@ export class TaskService {
         }
 
         return await this.taskRepository.save(task);
+    }
+
+    async delete(taskId: number, user: User) {
+        const task = await this.taskRepository.findOne({
+            where: { id: taskId },
+            relations: ['user'],
+        });
+
+        if (user.id !== task.user.id) {
+            throw new UnauthorizedException("Unauthorized Exception");
+        }
+
+        return await this.taskRepository.delete(task);
     }
 }

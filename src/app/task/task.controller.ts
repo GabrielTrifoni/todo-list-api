@@ -23,7 +23,14 @@ export class TaskController {
     @Patch(':id')
     @UseGuards(AuthGuardJwt)
     @UseInterceptors(ClassSerializerInterceptor)
-    async update(@Param(':id') taskId: number, @Body() input: UpdateTaskDto): Promise<Task> {
-        return await this.taskService.update(taskId, input);
+    async update(@Param(':id') taskId: number, @Body() input: UpdateTaskDto, @CurrentUser() user: User): Promise<Task> {
+        return await this.taskService.update(taskId, input, user);
+    }
+
+    @Delete(':id')
+    @UseGuards(AuthGuardJwt)
+    @HttpCode(204)
+    async delete(@Param(':id') taskId: number, @CurrentUser() user: User) {
+        await this.taskService.delete(taskId, user);
     }
 }
