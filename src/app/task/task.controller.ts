@@ -1,4 +1,4 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, HttpCode, Param, Patch, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, HttpCode, Param, ParseIntPipe, Patch, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { AuthGuardJwt } from '../auth/auth-guard.jwt';
@@ -12,6 +12,20 @@ export class TaskController {
     constructor(
         private readonly taskService: TaskService,
     ) { }
+
+    @Get()
+    @UseGuards(AuthGuardJwt)
+    @UseInterceptors(ClassSerializerInterceptor)
+    async findAll(@CurrentUser() user: User) {
+        return await this.taskService.findAll(user);
+    }
+
+    @Get(':id')
+    @UseGuards(AuthGuardJwt)
+    @UseInterceptors(ClassSerializerInterceptor)
+    async findOneTask(@Param('id', ParseIntPipe) taskId: number, @CurrentUser() user: User) {
+        return await this.taskService.findOneTask(taskId, user);
+    }
 
     @Post()
     @UseGuards(AuthGuardJwt)

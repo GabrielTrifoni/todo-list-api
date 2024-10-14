@@ -13,6 +13,29 @@ export class TaskService {
         private readonly taskRepository: Repository<Task>,
     ) { }
 
+    async findAll(currentUser: User) {
+        return await this.taskRepository.find({ where: { user: currentUser } });
+
+    }
+
+    async findOneTask(taskId: number, currentUser: User) {
+        const task = await this.taskRepository.findOne({
+            where: { id: taskId },
+            relations: ['user'],
+        });
+
+        if (!task) {
+            throw new NotFoundException('Task not found');
+        }
+
+        if (currentUser.id !== task.user.id) {
+            throw new UnauthorizedException("Unauthorized Exception");
+        }
+
+        return task;
+    }
+
+
     async create(input: CreateTaskDto, user: User): Promise<Task> {
         const task = new Task();
 
@@ -24,13 +47,13 @@ export class TaskService {
         return await this.taskRepository.save(task);
     }
 
-    async update(taskId: number, input: UpdateTaskDto, user: User) {
+    async update(taskId: number, input: UpdateTaskDto, currentUser: User) {
         const task = await this.taskRepository.findOne({
             where: { id: taskId },
             relations: ['user'],
         });
 
-        if (user.id !== task.user.id) {
+        if (currentUser.id !== task.user.id) {
             throw new UnauthorizedException("Unauthorized Exception");
         }
 
@@ -51,13 +74,13 @@ export class TaskService {
         return await this.taskRepository.save(task);
     }
 
-    async delete(taskId: number, user: User) {
+    async delete(taskId: number, currentUser: User) {
         const task = await this.taskRepository.findOne({
             where: { id: taskId },
             relations: ['user'],
         });
 
-        if (user.id !== task.user.id) {
+        if (currentUser.id !== task.user.id) {
             throw new UnauthorizedException("Unauthorized Exception");
         }
 
